@@ -1,0 +1,395 @@
+---
+title: "CHAPTER 2 Exercises: Intro to Statistical Learning"
+author: "Justin C. Hayes"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+In essence, statistical learning involves generating a function (f) based on data associated with one or more predictor (dependent, input) variables. The basic equation is:
+
+**Y = f(X) + e (error)**
+
+There are **two primary reasons to estimate f**
+
+### Prediction
+
+When the value of Y is not readily available, we can use the general form of the equation: **Y^ = f^(X)** to generate an approximation of Y given that the error averages to zero. In this situation **f is treated as a black box** given that we are not so concerned with its value so long as it accurately predicts Y. 
+
+There are two types of error when estimating Y:
+      
+      
+    i) Reducible Error - This error is reducible because we can lessen it by using the appropriate statistical learning technique when estimating f.
+      
+    ii) Irreducible Error - Because Y is also a function of e, we cannot completely eliminate it. There will always be some random error, accounted for by either a variable that we do not have in our model or some random fluctuation within one of our variables (e.g., time of day, patient's BMI)
+        
+The aim of this book is to minimize the reducible error by choosing the best statistical learning technique. 
+
+### Inference
+
+In general, we wish to understand how Y changes as a function of X. How does some independent variable affect some dependent variable? We do not treat f as a black box in this scenario because it provides information about this relationship. We ask three questions:
+
+    i) Which predictors are associated with the response?
+    
+    ii) What is the relationship between the response and each predictor?
+    
+    iii) Can the relationship between Y and each predictor be adequately summarized using a linear equation, or is the relationship more complicated?
+    
+An example of the desire only to predict would be a marketing campaign intended to identify those who will respond negatively or positively to a given mailing. In this case, we don't need to know which variables are influencing the decision, we are only interested in finding the customers who will respond positively.
+
+On the other hand, if we need to find the ideal types of marketing materials to increase sales, we are interested in which variables are driving sales and which are not, so that we can put more money into those that are and less into those that are not. We might also want to know how much of an increase in sales we should expect to see for a given injection of money into a certain type of advertisting (e.g., television, radio).
+
+And sometimes we wish to make inferences and predictions, for instance, if we wanted to know how much being near a lake increased home value and whether a house will be purchased above a set price point based on a handful of variables. 
+In general, linear models are easier to interpret, but might not be as accurate. While non-linear models may be extremely accurate but lack the interpretability of linear models.
+
+## Estimating *f*
+
+We always have a set of data of length **n** that comprise the *training data* because they are used to train our technique how to predict the value of *f*. 
+
+**GOAL**: apply a statistical learning method to the training data (Xi1, Xi2, Xip)^T in order to estimate the unknown function *f*. 
+
+### Parametric Methods
+
+Two-step model-based approach:
+
+    i) Choose the type of model (linear or non-linear)
+    
+    ii) Leverage the training data to estimate the model parameters (i.e. Beta values)
+
+This is called the **parametric** because it involves using data to estimate *f* using a set of parameters.
+
+One challenge in parametric methods is finding a model that approximates the true form of *f*. This often entails using as many parameters as possible; however, this can lead to **overfitting** the data which means that the model adheres too closely to the error and will not fit a new set of data accurately (i.e., it is customed tailored to the set of data it is trained on).
+
+### Non-parametric Methods
+
+Non-parametric forms do not seek to predict the form of *f* (e.g., linear), but instead try to adhere to the data as closely as possible without being too rough or wiggly. Because they do not attempt to reduce *f* to a set of parameters, a large amount of data is required to produce a generalizable model that adheres closely to *f*. 
+
+An example is a **thin-plate spline** model where the data analyst is tasked with assigning the smoothness of the model. 
+
+**Semi-supervised learning problem** We have predictor (X) and response (Y) vars for some, but not all, cases. (Remember: **Supervised learning** = both response and predictor variables; **Unsupervised learning** = only predictor variables [e.g., PCA])
+
+If we are dealing with only quantitative data we call this a *regression problem*. If we are dealing with both quantitative and qualitative data, we call this a *classification problem*
+
+## Measuring quality of fit
+
+**Mean squared error** - for any given observation Y how well does the predicted value f^(x) fit? What is the *average* deviation from the actual value? We are most concerned with *how accurately the prediction (Y^) matches the actual outcome value (Y) on a novel set of data (test data)* not on the training data.
+
+**Key Takeaway**: We want to choose the method resulting in the lowest **test MSE** rather than the lowest train MSE. I.e., how well does our model predict an unseen outcome data point?
+
+There's always a trade-off between flexibility and test MSE, such that too much flexibility in the training model will result in increased MSE in the test data--this is what is meant by **over-fitting**. 
+
+**Key Concepts:**
+
+    i) Variance: The degree to which F^ would change if we used an entirely different training set. The variance should not differ very much across unique training sets. *In general, more flexible methods have higher variance.* 
+    Consider a linear regression model, which has low variance --> changing any one data point will have a negligible impact on the model fit. In a spline model, however, changing any one data point will substantially change the data fit (see Fig. 2.9 p. 31). 
+    
+    ii) Bias: This results when we simplify a real-life problem using a straight-forward model (e.g., linear regression) when in fact, the problem might be very complicated. *In general, more flexible methods have lower bias* In other words, spline models, for instance, are likely to fit the data better, thus accounting for their complexity.
+    In general, using a more flexible model will result in less bias and more variance (i.e., it will fit the data better, but not fit unseen data very well[high MSE across different data sets]).
+    So as we increase flexibility, the bias decreases initially and the variance does not; however, as we continue to increase flexibility, we will reach a point where the variance starts increasing. **So it's a matter of balancing variance and bias in order to produce a model that fits novel data well while also accounting for the complexity inherent in the data**
+    
+## Classification
+
+Here we want to minimize the error rate in terms of correctly assigning a case to its corresponding label. In other words, we train a model on a set of data and the model then predicts which class an unseen data point belongs to (e.g., Yes/No). **Test error** is the percentage of incorrect assignments divided by the total number of cases. We want to *minimize test error.*
+
+A **Bayes Classifier** decides whether a given case belongs to a specified group given the set of predictor values P(Y = j | X = xo). If P > .5, for two possible outcomes, then the case is assigned to that outcome. 
+
+## K-Nearest Neighbors (KNN)
+
+Given a positive integer K and a test obs xo, the KNN classifier identifies the K nearest points in the training data to xo, represented by *N*o. It then estimates the cond probability for class *j* as teh fraction of points in *N*o whose response values equal *j*.
+
+In plain English, say K = 3. You take an unseen point in multdimensional space (Based on how many predictors you have), find three adjacent points in that space, whose corresponding class we know (Say, "yes" or "no"), then we determine how many of those points are associated with a given outcome, ("yes") and compute the conditional probability that the new point, xo, belongs to that class. Say the 3 nearest points belong to class (yes, yes, no), then we assign the probability that the new point has a P(.66 given the values of the 3 points for which we know what class they belong to). 
+
+**The value of K is very important.** For instance, K = 1 will produce a model that has low bias but extremely high variance. While K = 100 will produce the opoosite. 
+
+## 2.3 Lab: Introduction to R
+
+Create a vector
+```{r}
+x <- c(1,3,2,5)
+x
+```
+Create a matrix
+```{r}
+x=matrix(data = c(1,2,3,4), nrow=2,ncol=2)
+x
+```
+We can omit the "nrow" and "ncol" commands
+```{r}
+x=matrix(data = c(1,2,3,4),2,2)
+x
+```
+Alternatively, you can fill by the rows rather than columns
+```{r}
+x=matrix(data = c(1,2,3,4),2,2, byrow = TRUE)
+x
+```
+We can perform operations on theentire matrix
+```{r}
+sqrt(x)
+x^2
+```
+Let's create a vector of random normal variables, with the first argument n the sample size. We will get a different answer each time we call this argument. Here we create two correlated sets of numbers, x and y, and use the cor() function to compute the correlation between them.
+```{r}
+x=rnorm(50)
+y=x+rnorm(50,mean=50,sd=.1)
+cor(x,y)
+```
+If we want to reproduce the exact same set of numbers we need to set the seed. The set.seed() function takes an arbitrary random number:
+```{r}
+set.seed(1303)
+rnorm(50)
+```
+By setting the seed, we can reproduce results. 
+
+Let's get the mean and variance for a set of numbers.
+```{r}
+set.seed(3)
+y=rnorm(100)
+mean(y)
+var(y)
+sqrt(var(y))
+sd(y)
+```
+### Graphics
+
+```{r}
+x=rnorm(100)
+y=rnorm(100)
+plot(x,y)
+plot(x,y, xlab="This is the x-axis", ylab="This is the y-axis", main="Plot of X vs Y")
+```
+
+We will often want to save the output of an R plot. Let's save a pdf and jpeg.
+```{r}
+pdf("Figure.pdf")
+plot(x,y.col="green")
+dev.off() # indicates to R that we are done creating plot
+```
+Let's create a sequence of numbers
+```{r}
+x=seq(1,10)
+x
+x=1:10
+x
+x=seq(-pi,pi,length=50)
+```
+Now we'll create some more sophisticated plots. For instance, a **contour plot** can represent 3D data: like a topographical map. 
+It takes 3 args. 1) vector of x values, 2) vector of y values, 3) matrix whose elements correspond to the z value (the 3rd dimension) for each pair of (x,y) coordinates
+```{r}
+y=x
+f=outer(x,y,function(x,y)cos(y)/(1+x^2))
+contour(x,y,f)
+contour(x,y,f,nlevels = 45, add = T)
+fa=(f-t(f))/2
+contour(x,y,fa,nlevels=15)
+```
+The Image function assigns color to z values and is often used to create a heatmap (e.g., weather forecasts). Or, persp() is used to produce 3D plot. Theta and phi control angles at which plot is viewed.
+```{r}
+image(x,y,fa)
+persp(x,y,fa)
+persp(x,y,fa,theta=30)
+persp(x,y,fa,theta=30, phi = 20)
+persp(x,y,fa,theta=30, phi = 70)
+persp(x,y,fa,theta=30, phi = 40)
+```
+
+### Indexing Data
+If we want to examine part of a data set, we can use indexing.
+```{r}
+A=matrix(1:16,4,4)
+A
+```
+```{r}
+A[2,3] # Get element in second row, third column
+```
+We can also select multiple rows and cols at a time, by providing vectors as the indices:
+```{r}
+A[c(1,3),c(2,4)]
+A[1:3, 2:4]
+A[1:2,]
+A[,1:2]
+```
+The use of a negative sign tells R to keep all but those included in the index
+```{r}
+A[-c(1,3),]
+A[-c(1,3), -c(1,3,4)]
+```
+
+### Loading Data
+Load some data
+```{r}
+library(ISLR)
+Auto = read.csv("Auto.csv")
+#fix(Auto)
+dim(Auto)
+```
+Check the variable names
+```{r}
+names(Auto)
+```
+Attach data so that R recognizes variables by name (i.e., we don't have to reference the DF everytime we wish to enter a variable name)
+```{r}
+attach(Auto)
+```
+Let's take a look at the interaction of cylinders and mpg
+```{r}
+plot(cylinders,mpg)
+```
+Let's transform the cylinders variable into a categorical variable given that there are only a few possible values
+```{r}
+cylinders=as.factor(cylinders)
+```
+Since cylinders is now categorical, the plot function will produce a boxplot
+```{r}
+plot(cylinders, mpg, col="red", varwidth=T, xlab="cylinders", ylab="MPG")
+```
+Clearly, mpg differs as a function of the number of cylinders in an engine.
+
+Let's plot a histogram and we'll enter "2" to denote the color red
+```{r}
+hist(mpg, col = 2, breaks=15)
+```
+The mpg distribution seems to be positively (right) skewed. My working hypothesis is that the cars on the high end of this distribution are hybrids.
+
+### Key Function!!!
+
+We can create a **scatterplot matrix** to visualize every pair of variables by using the pairs() function. Let's specify the variables we would like to include:
+```{r}
+pairs(~ mpg + displacement + horsepower + weight + acceleration, Auto)
+```
+Let's check out the identify function, which provides a means to interactively examine the value of a given point which will be printed when you click on it. Right click the plot to exit.
+```{r}
+plot(horsepower, mpg)
+identify(horsepower, mpg, name)
+```
+We'll use the summary() function to get summary stats for each variable.
+```{r}
+summary(Auto)
+```
+```{r}
+detach(Auto)
+```
+
+## APPLIED EXERCISES
+```{r}
+data("College")
+```
+
+Convert College data to csv file and open it
+```{r}
+write.csv(College,'/Users/justinhayes/Documents/Documents - Justin’s MacBook Air/IntroToStatisticalLearning/Chapter2/College.csv')
+college <- read.csv("College.csv")
+```
+Look at data using fix() function
+```{r}
+#fix(college)
+
+```
+Let's assign the first col to rownames, since we don't need to treat this as a variable (its the name of the college)
+```{r}
+rownames(college) = college[,1]
+#fix(college)
+```
+Now let's remove the first col so we don't have duplicats (rownames and col1 are now both the name of the colleges)
+```{r}
+college=college[,-1]
+```
+Let's look at summary stats for the vars in these data. Then we'll make plots for all numeric data in college.
+```{r}
+summary(college)
+pairs(college[,2:11])
+```
+Produce side-by-side boxplots of Outstate vs. Private
+```{r}
+library(ggplot2)
+library(tidyverse)
+ggplot(college, aes(x = Private, y = Outstate)) + 
+  xlab("Private") + ylab("Out of State Tuition Cost") +
+  geom_boxplot()
+```
+Create a new qualitative variable called **Elite** by binning the Top10perc variable. Divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50%.
+```{r}
+college <- college %>%
+  mutate(Elite = ifelse(Top10perc > 50, "Yes", "No"))
+```
+Use summary to see how many elite universities there are
+```{r}
+Elite = factor(Elite)
+summary(Elite)
+```
+Produce side-by-side boxplots of Outstate vs. Elite
+```{r}
+ggplot(college, aes(x = Elite, y = Outstate)) + 
+  xlab("Elite") + ylab("Out of State Tuition Cost") +
+  geom_boxplot()
+```
+Create some histograms with different bin sizes for several num vars
+```{r}
+par(mfrow=c(2,2))
+ggplot(college, aes(Apps)) + geom_histogram(binwidth = 1000)
+ggplot(college, aes(Accept)) + geom_histogram(binwidth = 300)
+ggplot(college, aes(Enroll)) + geom_histogram(binwidth = 200)
+ggplot(college, aes(Outstate)) + geom_histogram(binwidth = 1500)
+```
+#### Continue Exploring These Data
+What's the price difference between Elite colleges and those with more than 50% of students who graduated in the top 25% of their class? Let's create a new categorical variable called Semi-Elite to examine this question:
+```{r}
+college <- college %>%
+  mutate(Semi.Elite = ifelse(Top25perc > 50, "Yes", "No"))
+Semi.Elite = as.factor(Semi.Elite)
+```
+Let's look at the summary of this new variable
+```{r}
+summary(Semi.Elite)
+```
+We'll create a new categorical variable that classifies colleges as Elite, Selective, or Neither
+```{r}
+college <- college %>% 
+  mutate(
+    Prestige = case_when(
+      Elite=="Yes" ~ "Elite", 
+      Semi.Elite=="Yes"~ "Selective",
+      Elite=="No" & Semi.Elite =="No" ~ "Neither"
+      ))
+Prestige = as.factor(Prestige)
+summary(Prestige)
+
+# Elite="No" & Semi.Elite ="No" ~ "Neither")
+```
+Now, let's checkout the relationship between Prestige and Out of state tuition cost
+```{r}
+class(Prestige)
+levels(Prestige)
+ggplot(data = college, aes(x=Prestige,y=Outstate)) + 
+  xlab("Prestige") + ylab("Out of State Tuition Cost") +
+  geom_boxplot()
+```
+There seems to be a relationship between Prestige and Out of State Tuition cost. Is the cost worth it? Let's look at graduation rates as they relate to prestige
+```{r}
+ggplot(data = college, aes(x=Prestige,y=Grad.Rate)) + 
+  xlab("Prestige") + ylab("Graduation Rate") +
+  geom_boxplot()
+```
+Consistent with what I would have predicted, the more prestigious schools have a higher graduation rate. 
+
+It would make sense that more prestigious schools have lower acceptance rates. Let's check this by creating a new variable called Acceptance.Rate
+```{r}
+college <- college %>%
+  mutate(
+    Acceptance.Rate = (Accept/Apps)*100
+  )
+```
+Let's check out how Acceptance Rate relates to prestige
+```{r}
+ggplot(data = college, aes(x=Prestige,y=Acceptance.Rate)) + 
+  xlab("Prestige") + ylab("Acceptance Rate") +
+  geom_boxplot()
+```
+It looks like Elite schools have the lowest selection rate, which is unsurprising. But when comparing selective and unselective schools, there's not much difference. Additionally, some selective and unselective schools have exceptionally low acceptance rates. 
+
+
+
+
+

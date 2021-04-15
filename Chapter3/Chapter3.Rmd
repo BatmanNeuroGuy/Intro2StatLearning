@@ -1,0 +1,526 @@
+---
+title: "Chapter3"
+author: "Justin Hayes"
+date: "2/3/2021"
+output: html_document
+---
+
+## Simple Linear Regression
+
+We say **"we are regressing Y on X."** E.g., we are regressing sales on tv advertising. 
+
+Together B~0~ (y-intercept) and B~1~ (slope)... represent the *parameters* or *coefficients* of our model.
+
+Formula for simple linear regression: $\hat{y}$ = $\hat{B}$~0~ + $\hat{B}$~1~x
+
+$\hat{y}$ = prediction for *Y* on the basis of *X* = *x*. We use a hat symbol $\hat{}$  to denote an estimation of the predicted value. 
+
+We use the **Least Squares Criterion** when assigning a model to a given matrix of data. The **Residual Sum of Squares (RSS)** minimizes the sum of the differences between the predicted value of Y given the model and the observed value in the data. 
+
+The *equation can be seen in 3.4 on p. 62*
+
+In real data, we cannot compute the true relationship between two variables but we can always compute the **least squares line** using the coefficient estimate from the RSS equation. 
+
+The **Standard Error** of the regression coefficients tells us how much our estimates are likely to differ from the true values of the coefficients if we had access to the entire population's data. 
+
+Standard errors are used to compute confidence intervals. The 95% CI for $\hat{B}$~1~ is $\hat{B}$~1~ +- 2*SE($\hat{B}$~1~). This tells us that the interval from 2 SE's below to 2 SEs above our $\hat{B}$~1~ estimate has a 95% chance of containing the true population parameter B~1~.
+
+The y intercept ($\hat{B}$~0~) tells us that in the absence of any contribution from our predictor variables (IVs), what the value of Y would be. In other words, what is the value of Y if x = 0. 
+
+A **hypothesis test** for linear regression involves computing the probability that we would observe the parameter value assigned to $\hat{B}$~1~ if it was in fact zero. In other words, the null hypothesis is $\hat{B}$~1~ = 0 and the alternative hypothesis is $\hat{B}$~1~ != 0. To do this we compute a *t-statistic* given by the formula: *t* = $\hat{B}$~1~ - 0 **/** (SE($\hat{B}$~1~)). This formula measures the # of SD's that $\hat{B}$~1~ is away from zero. The **T distribution** resembles the normal distribution and works **when n > 30.** *We compute the probability of a value equal to |t| or larger if $\hat{B}$~1~ is in fact zero.* = **p value**. If the p value is small enought (e.g., p < .05) then we can reject the null hypothesis and assume a relationship between the predictor and outcome variable. 
+
+R^2^ is a statistic describing the proportion of variance explained by the model. The formula for R^2^ is: R^2^ = TSS - RSS / TSS = 1 - (RSS / TSS). **R^2^ measures the proportion of variability in Y that can be explained using X** Whether an R^2^ values is good or not, depends on how likely we are to expect a linear model to approximate reality, and in most social science applications, the data contains a lot of error so a small R^2^ value can still be meaningful. 
+
+In simple linear regression R^2^ and the correlation coefficient r^2^ are identical, but this is not the case for multiple regression.
+
+### Multiple Linear Regression
+
+In multiple regression we assign a unique slope value (*B*) to each predictor in the model. 
+
+The Multiple Linear Regression takes the form:
+*Y* = $\hat{B}$~0~ + $\hat{B}$~1~$\hat{X}$~1 + $\hat{B}$~2~$\hat{X}$~2 ... $\hat{B}$~p~$\hat{X}$~p + *E*
+
+We interpret $\hat{B}$~j~ as the average effect on *Y* of a one unit increase in $\hat{X}$~j~, *holding all other predictors fixed.*
+
+**See Figure 3.4 on p. 73 for a visualization of how a regression model with two predictors is fit to the data**
+
+A predictor variable included in a simple regression model that is significant, can be non-significant in a multiple regression model if the variance that the predictor was contributing can be accounted for by another predictor. For instance, suppose that newspaper advertising significantly predicts sales in a market; however, when included in a model with TV and radio advertising, is no longer significant. This is because the overall sales in a given market are going up as money is invested in all three types of advertising; however, it's all being driven by TV and radio advertising, not by newspaper advertising. 
+
+### Some Important Questions
+
+#### 1. *Is at least one of the predictors ${X}$~1~, ${X}$~2~, ..., ${X}$~p~ useful in predicting the response?*
+
+We want to find out if the all of the slopes (${B}$'s) associated with all of the predictor variables are equal to zero (null hypothesis):
+
+${H}$~0~: ${B}$~1~ = ${B}$~2~ = ... = ${B}$~p~ = 0
+
+Vs. The alternative hypothesis
+
+${H}$~a~: at least one ${B}$~j~ is nonzero
+
+We figure this out by computing the *F-statistic*:
+
+$$F = \frac{TSS - RSS/p}{RSS/(n - p - 1)}$$
+
+With the F stat, we are computing the difference between the variance of the outcome variable around the mean compared to the variance of the outcome variable around the regression model. If this variance is nearly identical, this means that the model isn't explaining much of it, and thus the F value will be close to 1 (null hypothesis). On the other hand, if the model variance is much smaller than the variance around the mean, then the model can explain a lot of the variability in the data and thus, the F value will be greater than 1 (alternative hypothesis).
+
+If n is large, the F value does not necessarily need to be a lot larger than 1 to provide evidence that at least one predictor is related to the outcome. However, when n is small, the F value must be larger if we are to draw any conclusions regarding the relationship between IV and DV.  
+
+**When ${H}$~0~ is true and the error follows a normal distribution, the F-statistic follows an F-distribution** Using n and p, the p-value associated with this F-stat can be computed. 
+
+Suppose that we want to compare a model omitting certain predictors, we can then compare that model to the model with all predictors. If the residual SS for the alternative model equals RSS~0~, then we would calculate the F-Stat using:
+
+$$F = \frac{RSS~0~ - RSS/q}{RSS/(n - p - 1)}$$
+This is how we predict the unique contribution to the model of each predictor variable as seen in a typical regression chart (with a t stat and p value). This represents the **partial effect** of adding that variable to the model. It tells you whether or not a given predictor variable is accounting for unique variance when the other predictors are included. 
+
+The F statistic for the overall model is important because it is not biased by the number of comparisons. If we have a lot of predictors, by chance alone, using the t stat and p value, we will find some significant relationships. However, the F stat is not prone to this bias because it adjusts for the number of predictors. You cannot use multiple regression when you have a small sample (n) and a large number of predictors. 
+
+
+#### 2. *Do all the predictors help explain Y, or are only a subset useful?*
+
+**Variable Selection** - We have to decide which variables to include in a model and because there's a chance of predictors seeming significant (based on p value) in our regression chart when in fact they are not, we have to use another method to decide which variables to include. One way to do this is to run multiple models and compare them to each other. For instance, 1) a model containing none of the predictors, 2) a model containing predictor A, 3) a model containing predictor B, and 4) a model containing both predictors A and B. 
+
+Then you can use various tests (Mallow's Cp, AIC, BIC, adjusted R~2~) to compare model fits. However, as the number of predictors grows, this strategy becomes increasingly impractical. Instead, we can use one of the following:
+
+**Forward Selection** - start with the null model, next add the variable that results in the lowest RSS, then add the next variable that results in the lowest RSS for the remaining error, and on and on. Can always be used.
+
+**Backward Selection** - Start with all variables in the model and remove the one with the highest p-value. Then remove the one with the highest p-value for the remaining variables. Continue until a defined criterion is reached (e.g., all variables are p < .05). Cannot be used if p > n. 
+
+**Mixed Selection** - Start with no variables in model. Add variable that provides the best fit. Continue adding variables one-by-one. Because the p-values for variables can become larger as we add more, we set a cutoff for the p-value and if any variable rises above that p-value, we remove it from the model. We continue this process until all variables in the model have a sufficiently low p-value, and all variables outside the model would have a large p-value if added back into the model. Can remedy the greediness of a forward selection model. 
+
+#### 3. *How well does the model fit the data?*
+
+R^2^ tells us how well the model fits. If adding a varible has a negligible effect on the R^2^ value, then it's best to leave it out as adding varibles will always slightly increase R^2^ but may result in overfitting (the model will not fit test data very well because it is trying too hard to account for the data in the training model). 
+
+We can also look at the RSE. The model with the lowest RSE is the best. Finally, plotting the data may tell us something about the model fit. 
+
+
+#### 4. *Given our predictors, what response value would we expect and how well close is our prediction to the observed value?*
+
+There will always be a difference between our predicted model and actual f(x) on the data. Further, even if we knew the real f(x) our predictions would be off because of the irreducible error. Thus, we have to use **prediction intervals** to estimate the fit of our model on novel data, which give an interval which is likely (at varying levels: 95%, 99%) to contain the true value of Y given the model. 
+
+#### Predictors with only two levels
+
+When we want to include a qualitative variable with two levels (e.g., Male, Female) in a regression model, we need to create a **dummy variable**, which assigns a value of 1 to one level of the variable and a value of 0 to the other level. So for instance, in a model with sex as the IV and credit card balance as the DV, ${B}$~0~ might represent the average balance for males, ${B}$~0~ + ${B}$~1~ would be the average balance for females, and ${B}$~1~ being the difference between females and males. So the model coefficient in this model would represent average female balance - average male balance. *Whichever level is coded 1 will be represented in the beta for the model. For instance, if females are coded as 1 and beta = 19.50, this means that on average, females have $19.50 more credit card debt (balance) than males; on the other hand, if males were coded as 1, and the beta is -19.50, this would suggest that males have 19.50 less debt than females.*
+
+So the equations would be: 
+
+${B}$~0~ **+** ${B}$~1~ + E~i~ --> if the person is female
+
+${B}$~0~ + E~i~ --> if the person is male
+
+Alternatively, we could create a dummy where: 1 = female and -1 = male. In which case our equations would be:
+
+${B}$~0~ **+** ${B}$~1~ + E~i~ --> if the person is female
+
+${B}$~0~ **-** ${B}$~1~ + E~i~ --> if the person is male
+
+
+#### Qualitative more than two levels
+
+When there are more than 2 levels in a qualitative variable, a single dummy variable will not suffice. Thus, we must create multiple dummy variables. If we are looking at ethnicity for instance, we can create two dummy variables.
+
+**DummyVar~1~:** Asian = 1, Not Asian = 0
+
+**DummyVar~2~:** Caucasian = 1, Not Caucasian = 0
+
+This will give us the following equation:
+
+${B}$~0~ + ${B}$~1~x~i~~1~ + ${B}$~2~x~i~~2~ + E~i~ 
+
+The model would be: ${B}$~0~ + ${B}$~1~x~i~~1~ + E~i~ if the person was Asian. ${B}$~0~ + ${B}$~2~x~i~~2~ + E~i~ if the person is caucasian. And ${B}$~0~ + E~i~ if the person is African American. 
+
+**IMPORTANT:**  ${B}$~0~ can be interpreted as the average card balance for African Americans,${B}$~1~ can be interpreted as *the difference in the average balance between the Asian and African American categories* and ${B}$~2~ can be interpreted as *the difference in the average balance between the Caucasian and African American categories.* In this model, the intercept is interpreted as the average card balance for African Americans, and the ${B}$~1~ and ${B}$~2~ as the differences described above (See page 85 for a thorough explanation). The way we interpret models based on how dummy variables are assigned is called **contrast**.
+
+#### Extensions of the linear model
+
+The standard linear regression model assumes that the relationship between the predictors and response are *additive* and *linear*. 
+
+**Additive** = the effect of changes in a predictor ${X}$~j~ on the response ${Y}$ is independent of the values of the other predictors. Additivity assumes that changing the value of a second predictor will have no effect on the first one, i.e., the variables are independent. 
+
+*Synergy effect* in marketing = interaction effect in stats. When change in DV~1~ has an impact on DV~2~. What this means in layman terms is that you need to consider both variables together when thinking about how they interact with the outcome. For instance, consider the # of workers in a factory (workers) and the number of assembly lines (lines) on units produced in a factory (DV; total_units). If we increase the number of lines, without increasing the number of workers, we're not likely to see an increase in efficiency, so we need to consider both workers and lines. This would look like:
+
+units ~ ${B}$~0~ + ${B}$~1~ x lines + ${B}$~2~ x workers + ${B}$~3~ x (lines x workers)
+
+= ${B}$~0~ + (${B}$~1~ + ${B}$~3~ x workers) + lines + ${B}$~2~ x workers
+
+In other words, adding an additional line will increase the number of units produced by ${B}$~1~ + ${B}$~3~ x workers, and the more workers we have the stronger the effect of lines will be. 
+
+Thus, adding an interaction term changes the additive assumption. If adding the interaction term improves the fit of the model and increase R^2^ substantially, then it's probably telling us that an additive model is insufficient. 
+
+**IMPORTANT**: *The hierarchical principal* states that if we include an interaction in a model, we should also include the main effects, even if the p-values associated with their coefficients are not significant. 
+
+**Interactions in regression models including qualitative variables** 
+
+Consider a model of cc balance with the predictors income and student (qualitative). 
+
+balance~i~ = ${B}$~0~ + ${B}$~1~ x income + ${B}$~2~ --> the person **is** a student
+
+And
+
+balance~i~ = ${B}$~0~ + ${B}$~1~ x income + 0 --> the person **is not** a student
+
+Essentially you have a different intercept for each case ${B}$~0~ + ${B}$~2~ for students and ${B}$~0~ for non-students, but an equal slope (${B}$~1~). Thus, you have two parallel lines. When we include an interaction, we are multiplying the dummy variable by income which results in the following models:
+
+balance~i~ = ${B}$~0~ + ${B}$~1~ x income + ${B}$~2~ + ${B}$~3~ x income --> student
+
+And
+
+balance~i~ = ${B}$~0~ + ${B}$~1~ x income + 0 --> not a student
+
+= (${B}$~0~ + ${B}$~2~) + (${B}$~1~ + ${B}$~3~) x income --> student
+
+And
+
+= ${B}$~0~ + ${B}$~1~ x income --> not a student
+
+The resulting regression lines for students vs. non-students will have different intercepts--${B}$~0~ OR (${B}$~0~ + ${B}$~2~)--and different slopes--${B}$~1~ OR (${B}$~1~ + ${B}$~3~). This might suggest that changes in income impact the balances or students and non-students differently (see Figure 3.7 on page 90). 
+
+#### Non-linear relationships
+
+**Polynomial regression** If the relationship between the predictor and outcome is clearly non-linear (curvy) then one solution is to include transformed versions of the variable in the model. For instance, you may want to include  ${X}$~1~ (var1) and a *quadratic term* ${X}$~1~^2^. Compare the model fit (R^2^) with and without the quadratic variable and check the significance of the p-value for the quadratic variable. 
+
+### Potential Problems
+
+**1. Non-linearity of the Data** -  Linear regression assumes a straight line relationship between predictor(s) and outcome--if this is not the case, then any conclusions we draw are suspect and the prediction accuracy of the model is significantly reduced. **Residual Plots** are one way to identify non-linearity. In simple regression we plot the residuals $\hat{y}$ - ${y}$, versus the predictor ${x}$~i~. In multiple regression, we plot the residuals vs the predicted values $\hat{y}$. If there is no discernerable patter, everything is good. But when there exists a clear pattern, it's likely that a linear model is not the best way to model this relationship. In this case, including non-linear transformations of the predictors ($log{X}$~i~, $\sqrt{X}$), ${X}$^2^) in the model may improve its fit. 
+
+**2. Correlation of Error Terms (autocorrelation)** - An important assumption of linear regression is that the error terms associated with the variables are uncorrelated. If the error terms are correlated we may have an overinflated sense of confidence in the model as confidence and prediction intervals associated with model coefficients and fitted values may be narrower than they should be and p-values may be too low. This is common in time-series data: a simple way to understand this is that knowing one residual associated with a given point in time, will give you a good idea of what the next residual, associated with an adjacent point in time, will be. This tells us that a given observation is not, in fact, independent from the next observation, as the value of ${x}$~i1~ tells us something about the value of ${x}$~i2~, etc. The basic idea is that when there is auto-correlation, the sampled observations somehow relate to one another and are thus, not independent. Good experimental design should mitigate these risks by ensuring that each observation is drawn in such a way that each observation is indeed, independent (e.g., we aren't including family members in a study about height and weight).
+
+**3. Non-constant Variance of Error Terms** Error terms should have a constant variance. When they do not, this is called **heteroscedasticity** and can be seen in a *funnel shape* in the residual plot. For instance, suppose that we are looking at income and spending expenditures. If you have limited income, you can only spend so much money, so for people with low income the variance around spending is going to be much lower than for those with higher income, who might spend a lot or a little depending on how frugal they are. Thus, we might see tight variance in the lower end of the plot (low income vs. spending) and looser variance towared the upper end (high income vs. spending). *One solution is to include transorm the response variable ${Y}$ using a concave function such as  $log{Y}$ or $\sqrt{Y}$ which results in a greater amount of shrinkage large responses resulting in a reduction in heteroscedasticity.* If we know that there is a pattern in the amount of variance depending on the value of our predictor, then we can account for this by adding a weight to each observation depending on the predictor value (see this video: https://www.youtube.com/watch?v=wCJ8I-MtJdQ) to adjust for the different amount of variance as a function of predictors--this is known as *weighted least squares* 
+
+**4. Outliers** *An outlier is a point for which a given observation for* **the outcome variable** *is more extreme than expected.* It might have little effect on the model fit but still create problems, for instance, by altering the RSE (variation around the regression line) which is used to compute confidence intervals and p-values. Outliers can also reduce the R^2^ value. Residual plots can be used to identify outliers, but it can be hard to tell if an outlier is present by looking at residuals, so we can instead calculate *studentized residuals* by dividing each residual by its estimated standard error. If the studentized residual is > 3, then it may be an outlier. Take care when removing outliers, as they may suggest something else. 
+
+**5. High Leverage Points** Outliers pertain to abnormally high values for the outcome variable while *leverage points* describe abnormally high values for predictors. High leverage points tend to have a much more pronounce effect on the model fit compared to outliers. *With multiple linear regression it is possible to have an observation that is well within the range of each individual predictor's values, but that is unusual in terms of the full set of predictors.In other words, given all of the predictors taken together, the pattern across these predictors is unusual which may impact how the model fits the data.* In order to quantify an observation's leverage, we compute the **leverage statistic** (see p. 98). The leverage statistic **${h}$~1~** is always between 1/${n}$ and 1, and the average leverage for all the observations is always equal to (${p}$ + 1)/${n}$. So if ${h}$~1~ greatly exceeds (${p}$ + 1)/${n}$, then we might think that the corresponding point has high leverage.  
+
+**6. Collinearity** Collinearity describes the situation when two or more predictors are closely related to one another. This is problematic in regression because it makes it hard to separate the effects of each variable on the outcome variable given that the predictors share variance. In this case, a small change in the values can result in drastic changes in the beta coefficients associated with each predictor without much of an impact on the RSS. Thus, *there is a great deal of uncertainty regarding the true value of the beta coefficients.*  This causes the SE associated with the coefficients to grow, which is leverage to calculate the ${t}$-statistic and thus, we may end up failing to reject the ${H}$~0~: ${B}$~j~ = 0. This means that the *power* of the hypothesis test--the ability to detect a *non-zero* coefficient--is reduced when we introduce collinearity. **An easy way to check for collinearity is to look at the correlation matrix of the predictors.** HOWEVER, this will not always work as it's possible for 3 or more predictors to be correlated even though none of them are correlated with each other--this is called *multicollinearity* and to test for this we need to compute the **variance inflation factor (VIF)** = the ratio of variance of ${B}$~j~ when fitting the full model divided by the variance of ${B}$~j~ if fit on its own. The smallest possible value for VIF is 1, which indicates the complete absence of collinearity. **A VIF value that exceeds 5 or 10 is problematic.** (See the VIF formula on p. 102). If collinearity is present we can A) remove one of the variables from the regression equation, or 2) combine correlated variables into a new, single variable--e.g., standardize the scores and take the average. 
+
+#### Considerations when fitting a regression model (p. 102)
+
+Process of testing the hypothesis that TV, Radio, and Newspaper marketing influence total sales. 
+
+1. **Fit a multiple regression model** of sales onto TV, radio, and newspaper. Calculate the F-statistic --> if the p-value is low, we can reject the null.
+
+2. **Examine the strength of the relationship** Get the RSE which tells us the difference between the response and population regression line. Divide the RSE by the mean value for the response variable to get the percentage of error for the RSE. Look at R^2^ to see how much variance the model explains.
+
+3. **Which predictors relate to the outcome** Examine the p-values associated with each predictor's t-stat. 
+
+4. **Which predictor variables in the model relate to the outcome variable?** The standard error of $\hat{B}~j~$ can be used to construct CIs for ${B}~j~$. Cosnstruct 95% (or 99%) CIs and if they do not include zero, the predictor variable is related to the outcome variable. Compute **VIF** scores to insure that collinearity does not account for wide CIs (A VIF score that exceeds 5 or 10 is problematic). To consider the unique contribution of each predictor on the outcome, you can run three separate simple regression models including each predictor separately to see how each is associated with the outcome. Or look at variable selection methods if you ahve a lot of variables--but, you should have a theoretical reason to consider the variables you include. 
+
+5. **How accurately can we predict future sales?** To predict an individual response, ${Y}$ = ${f(x)}$ + ${e}$ use a prediction interval. To predict the average response ${f(x)}$ use a confidence interval. 
+
+6. **Is the relationship linear?** We can use residual plots to identify non-linearity. We can include transformed predictors if we observe non-linearity.
+
+7. **Is there synergy (interaction) among predictors?** A small p-value for an interaction term suggests synergy (interaction). If including an interaction term enhances the fit of the model (significantly increases ${R}$^2^) then include it in the model but take care how you interpret it. 
+
+#### Comparison of Linear Regression with K-Nearest Neightbors
+
+Linear regression assumes a linear model for ${f(x)}$ but if the data are not well-suited to a linear model, then linear regression can be a poor fit and result in inaccurate conclusions. *Non-parametric* models do not assume a specified form of ${f(x)}$ and can provide a more flexible approach. Here we'll consider **K-nearest neighbors regression (KNN regression)** - Given a value for ${K}$ and a prediction point ${x}$~0~, KNN regression 1) identifies the ${K}$ training observations that are closest to ${x}$~0~, represented by  ${N}$~0~, and 2) estimates ${f(xo)}$ using the average of all the training responses in ${N}$~0~. In simple terms, the data contain a point in p-dimensional space, that point is compared to the nearest ${K}$ points and the prediction for the outcome is the average ${Y}$ for those nearest ${K}$ points.   ${K}$ must take into account *bias/variance tradeoff* -- a small ${K}$ will have the most flexibility but will likely be overfit to the training data, and too high of a ${K}$ will be biased (rigid), so it's good to find a happy medium. 
+
+When will parametric models (e.g., linear regression) outperform non-parametric models (e.g., KNN regression)--when the true form of ${f(x)}$ is close to the parametric model. When ${f(x)}$  is linear, then KNN will never be as good as a linear model; however, increasing ${K}$ will cause the KNN model to approach a linear model in terms of MSE. Even when a relationship is highly non-linear, linear regression often outperforms KNN expecially in higher dimensions (p > 1). 
+
+**Curse of dimensionality** for KNN regression when p is large and n is small, each point might be so far away from it's nearest neighbors in p-dimensional space (e.g., 20 + dimensional space) that the prediction is very far off from the actual ${f(x)}$. *As a general rule, parametric methods will tend to outperform non-parametric approaches when there is a small number of observations per predictor.* Finally, because linear models are easier to interpret, we might be willing to trade a meager amount of accuracy in exchange for interpretability. 
+
+### Lab: Linear Regression
+
+```{r library import}
+library(MASS)
+library(ISLR)
+```
+
+Import the Boston dataframe from MASS
+``` {r}
+fix(Boston)
+names(Boston)
+```
+Fit a simple linear model using lm function with medv as the response var and lstat as the predictor. We'll attach the Boston df and check out the ${F}$ stat and ${R}$^2^ value for the model by using the summary function.
+``` {r}
+attach(Boston)
+lm.fit=lm(medv~lstat)
+summary(lm.fit)
+```
+Let's explore the other features of the model using the names function. Then we look at the coefficients and finally, the confidence intervals for the coefficient estimates.
+``` {r}
+names(lm.fit)
+coef(lm.fit)
+confint(lm.fit)
+```
+The predict function will give us confidence and prediction intervals for the prediction of medv for a set of specified values of lstat.
+```{r }
+predict(lm.fit, data.frame(lstat=(c(5,10,15))),interval="confidence")
+predict(lm.fit, data.frame(lstat=(c(5,10,15))),interval="prediction")
+```
+Now we can plot medv and lstat along with the least squares regression line using the plot() and abline() functions.
+``` {r}
+plot(lstat,medv)
+abline(lm.fit)
+```
+We can change the regression line by specifying different parameters within abline and we can also change the width or the line, color, and pch changes the symbols
+``` {r}
+plot(lstat, medv, col="blue",pch=20)
+abline(lm.fit, lwd=3,col="red")
+```
+Next we'll take a look at some diagnostic plots. We can take a look at four of them using the par and mfrow functions. Plotting our regression model will automatically generate four plots.
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit)
+```
+We can now plot the residuals and studentized residuals against the fitted values.
+```{r}
+plot(predict(lm.fit), residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+```
+
+Based on the patterns in the residual plots, there is some evidence of non-linearity. So we can compute leverage statistics using the hatvalues() function
+```{r}
+plot(hatvalues(lm.fit))
+which.max(hatvalues(lm.fit))
+```
+
+The output tells us which data point has the highest leverage statistic. 
+
+### Multiple Linear Regression
+Let's regress medv on two variables, lstat and age
+```{r}
+lm.fit=lm(medv~lstat+age, data = Boston)
+summary(lm.fit)
+```
+Now let's regress medv onto all of the variables in the df.
+```{r}
+lm.fit = lm(medv~., data = Boston)
+summary(lm.fit)
+```
+We can access individual components of a summary object by name (type ?summary.lm to see what is available.). We can use the vif() function as part of the car package to assess multicollinearity using the VIF (variance inflation factors) stat. 
+```{r}
+library(car)
+vif(lm.fit)
+```
+
+If we want to included all of the variables in the model but one, we can either use the .-var syntax or use the update() function
+```{r}
+lm.fit1=lm(medv~.-age, data=Boston)
+# OR
+lm.fit1=update(lm.fit, ~.-age)
+summary(lm.fit1)
+```
+
+#### Interaction Terms
+``` {r}
+summary(lm(medv~lstat*age, data=Boston))
+
+```
+
+#### Non-linear transformations of the predictors
+
+We can create a predictor ${X}$^2^ by using I(X^2). The function I() is needed since the ^ has special meaning in a formula.
+```{r}
+lm.fit2=lm(medv~lstat + I(lstat^2), data = Boston)
+summary(lm.fit2)
+```
+
+The near-zero p-value of the quadratic term suggests that it leads to an improved model. We can quantify the difference between the models with and without this term further using the anova() function. 
+```{r}
+lm.fit=lm(medv~lstat, data = Boston)
+anova(lm.fit, lm.fit2)
+```
+
+The anova() function performs a hypothesis test comparing the two models. ${H}$~0~ is that the two models fit the data equally well, and ${H}$~A~ is that the full model is superior. Since the F-stat is 135 and the associated p-value is approaching zero, we can be confident that the model with the quadratic term is superior. This makes sense given that we saw evidence of non-linearity when we looked at the residual plots. 
+
+``` {r}
+par(mfrow=c(2,2))
+plot(lm.fit2)
+```
+When the quadratic term is included in the model, there's little discernable pattern in the residuals. 
+
+We can include higher order polynomials using the poly() function. Let's fit polynomials up to a 5th order polynomial.
+```{r}
+lm.fit5=lm(medv~poly(lstat,5), data = Boston)
+summary(lm.fit5)
+```
+
+Including polynomial terms up to the fifth order improves fit! 
+
+We can also try a log transform:
+```{r}
+summary(lm(medv~log(rm), data=Boston))
+```
+
+#### Qualitative Predictors
+
+Now we'll checkout the Carseats data set from the ISLR library and attempt to predict Sales (child car seat sales) in 400 locations based on a number of predictors. 
+```{r}
+data(Carseats)
+names(Carseats)
+```
+These data include a number of categorical vars such as ShelveLoc --> where the carseat is displayed at each location and takes on one of 3 values--Bad, Medium, or Good. Given a qualitative variable, R automatically generates dummy variables. Below we fit a multiple regression that includes some interaction terms.
+```{r}
+lm.fit=lm(Sales~.+Income:Advertising + Price:Age, data = Carseats)
+summary(lm.fit)
+```
+
+We can use the contrasts() function to view the coding that R uses for the dummy vars.
+```{r}
+attach(Carseats)
+contrasts(ShelveLoc)
+```
+This shows us that R has created one dummy variable for "ShelveLocGood" that assigns a 1 if ShelveLoc = "Good" and a 0 otherwise; it has also created a "ShelveLocMedium" that assigns a 1 if ShelveLoc = "Medium" and a 0 otherwise. A bad shelving location corresponds to a 0 for both dummy variables. ShelveLocGood corresponds to a large positive coefficient, suggesting that sales are higher compared to ShelveLocBad, and the ShelveLocMedium corresponds to a less positive coefficient, as would be expected as sales are higher than when the shelf location is bad, but not as high as when it is good. 
+
+#### Writing functions
+
+Let's create a simple function that loads in the MASS and ISLR libraries.
+```{r}
+LoadLibraries=function(){
+  library(ISLR)
+  library(MASS)
+  print("The libraries have been loaded.")
+}
+```
+Now if we type in LoadLibraries, R will tell us what's in the function.
+```{r}
+LoadLibraries
+```
+If we call the function, the libraries are loaded in and the print statement is output.
+```{r}
+LoadLibraries()
+```
+
+### Applied p. 121
+
+**Question 8**
+
+Load Data
+``` {r}
+data(Auto)
+names(Auto)
+attach(Auto)
+```
+
+Create simple linear regression model with mpg as DV and horsepower as IV
+``` {r}
+mod1 <- lm(mpg~horsepower, data = Auto)
+summary(mod1)
+predict(mod1, data.frame(horsepower=98), interval="confidence")
+predict(mod1, data.frame(horsepower=98), interval="prediction")
+```
+When regressing mpg onto horsepower, we observe a significant relationship (p < .001) with horsepower accounting for roughly 60% of the variance associated with mpg (Adj ${R}$^2^ = 0.6049) which suggests a strong relationship between the two vars insofar as the greater the horsepower, the lower the mpg (negative relationship). The predicted mpg associated with a hp of 98 is 39.934861 + -0.157845*98 = 24.46605, 95% CI: 23.97 - 24.96, 95% PI: 14.80 - 34.12.
+
+**Plot the response and the predictor. Use the abline() function to display the least squares regression line.**
+``` {r}
+plot(horsepower,mpg)
+abline(mod1, col = "red")
+```
+**Check for problems with the model using the plot function and diagnostic plots
+``` {r}
+par(mfrow=c(2,2))
+plot(mod1)
+```
+The relationship between mpg and horsepower appears to be nonlinear based on the residual plots which suggest a curvilinear relationship. The fit would likely be improved by including a exponential term. Let's check.
+``` {r}
+mod2 <- lm(mpg~horsepower + I(horsepower^2), data = Auto)
+summary(mod2)
+```
+
+The adjusted ${R}$^2^ suggests that this model fits the data better. Let's compare the two models using the anova function
+``` {r}
+anova(mod1,mod2)
+```
+
+Indeed, the model with the 2nd order term outperforms the linear model. 
+
+**Question 9**
+
+Produce scatterplot for all vars in Auto dataset
+``` {r}
+pairs(Auto)
+```
+Compute correlation matrix
+``` {r}
+round(cor(Auto[sapply(Auto, is.numeric)]), digits=2)
+```
+
+Regress mpg onto all numerical vars
+``` {r}
+lm.mod <- lm(mpg~.-name, data = Auto)
+summary(lm.mod)
+```
+
+Overall, the model is highly significant (${F}$ = 252.4 (7,384), p < .001), accounting for a large portion of the variance ~ 82% (Adjusted ${R}$^2^ = 0.82). The following variables are significant: displacement (${t}$ = 2.647, ${p}$ <.01), weight (${t}$ = -9.929, ${p}$ < .0001), year (${t}$ = 14.729, ${p}$ < .0001), and origin (${t}$ = 5.127, ${p}$ < .0001). The coefficient of the year variable suggests that for each year that passes there is an approximately 0.75 mpg increase in fuel efficiency. 
+
+Plot diagnostics
+```{r}
+par(mfrow=c(2,2))
+plot(lm.mod)
+```
+The diagnostic plots suggest some issues meeting the assumptions necessary for linear regression. However, they seem relatively minor. For instance, their is some indication of mild non-linearity in the residual plot; however it's very slight and thus, probably nothing to worry about. There's some indication of a fat right tail based on the Q-Q plot, but it's not too severe. There don't seem to be any unusually large outliers, but data point 14 has somewhat high leverage, but not high enough to worry about. Just to be safe, we'll do a leverage test.
+
+```{r}
+hats <- as.data.frame(hatvalues(lm.mod))
+```
+It does seem that the 14th value has some influence, but we aren't going to worry about it here. 
+
+Fit models with interaction effects
+``` {r}
+lm.mod2 <- lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin + cylinders:weight + cylinders:displacement, data = Auto)
+summary(lm.mod2)
+```
+ 
+I've only looked at a few interactions here, but there is a significant interaction between weight and cylinders. Let's plot this to see if we can understand this relationship.
+```{r}
+ggplot(data = Auto, aes(x=weight, y = mpg, color = as.factor(cylinders))) + geom_point()
+```
+
+What this interaction seems to suggest is that as cars get heavier, adding additional cylinders improves fuel efficiency. In plain English, this interaction suggests that for heavy cars, it's better to have more cylinders in terms of greater fuel efficiency.
+
+Now we'll add a few transformations to this model to see if it improves fit.
+``` {r}
+summary(lm.mod3 <- update(lm.mod2, . ~ . + I(cylinders^2) + I(displacement^2)+ I(horsepower^2) + I(weight^2) + I(acceleration^2) + I(year^2) + I(origin^2)))
+anova(lm.mod2, lm.mod3)
+
+```
+
+The model with second order predictors fits the data significantly better than the model without them.
+
+**10. Carseats Data**
+
+Fit a multiple reg model predicting Sales with Price, Urban, and US
+```{r}
+attach(Carseats)
+```
+
+```{r}
+summary(lm.fit <- lm(Sales ~ Price + Urban + US, data = Carseats))
+#  + Price:Urban + Price:US + Urban:US
+```
+
+Price is negatively associated with Sales, suggesting that for every dollar increase in price we see a .05 unit reduction in sales. Additionally, the US variable suggests that sales are higher in the U.S. by 1.20 units. 
+
+Model without the insignificant Urban predictor
+```{r}
+summary(lm.fit1 <- update(lm.fit, .~. -Urban))
+```
+
+Let's compare the two models:
+```{r}
+anova(lm.fit, lm.fit1)
+```
+
+There's no significant difference in model fit, which shows that the Urban variable does nothing to improve the model. 
+
+Let's get 95% confidence intervals for the latest model:
+```{r}
+confint(lm.fit1, level=0.95)
+```
+
+Finally, lets look at the diagnostic plots of this model.
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit1)
+```
+There's no evidence of outliers and one potential data point with high leverage. 
+
+
+
+
+
+
+
+

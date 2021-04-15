@@ -1,0 +1,352 @@
+---
+title: "Chapter4"
+author: "Justin Hayes"
+date: "3/11/2021"
+output: html_document
+---
+
+Classification is used to predict categorical (qualitative) variables. 
+
+### 4.2 Why not Linear Regression?
+
+Because the relationship between levels of a categorical variable are not numerically meaningful (Green= 1, Red = 2, Blue = 3 has no inherent meaning in terms of the numerical difference between categories). Linear regression requires a continuous, quantitative outcome variable. Linear reg can, however, be used if we have a binary response because we could creat a dummy variable (var1 = 1, var2 = 0) where anything above a .5 cutoff would be var1 and anything below .5 would be var2 --> this would hold if we switched the order of the vars (var1 = 0, var 2 = 1). In other words, "it can be shown that the ${X}$$\hat{B}$ obtained using linear regression is in fact an estimate of ${Pr}$(var | ${X}$) in this special case. However, some of our estimates will be outside of the [0,1] interval making them hard to interpret as probabilities! Nevertheless, they will give us a rough probability and are actually the same prob predictions that we get when we do LDA."
+
+### Logistic Regression
+Logistic regression models the *probability* that ${Y}$ belongs to a particular category. For instance, if we were modeling the probability of defaulting on a credit card (${Y}$ = Did Not Default = 0/Did Default = 1) based on credit card balance (${X}$~1~), the probability of default given balance can be written as 
+Pr(default = Yes|balance) and will range from 0 to 1. 
+
+### The logistic model
+We must use a function that gives outputs between 0 and 1 for any value of ${X}$ --> there are many functions that can do this, but in logistic regression we use the logistic function (see p. 132). The logistic function will always produce an S-shaped curve as shown in Figure 4.2 on p. 131. 
+
+p(${X}$)/[1 - p(${X}$)] = The *odds* --> can take on any value between 0 and infinity. For instance, 1 out of 5 people will default with the odds of 1/4, since ${p(X)}$ = 0.2 implies an odds of 0.2/(1 - 0.2) = 1/4. Or on average 9 out of 10 people with an odds of 9 will default since ${p(X)}$ = 0.9 implies .9/(1-.9) = 9. log(${X}$/[1 - p(${X}$)]) = the *log-odds* or *logit*. In linear regression a one unit increase in the predictor = a ${B}$ increase in the outcome. **In logistic regression, increasing ${X}$ by one unit changes the log odds by ${B}$~1~, or equivalently it multiplies the odds by ${e}$^${B}$~1~^. The amount that the ${p(X)}$ changes due to a one-unit change in ${X}$ will depend on the current value of ${X}$ but if ${B}$~1~ is positive then increasing it will result in increasing ${p(X)}$ and if ${B}$~1~ is negative then increasing will result in decreasing ${p(X)}$.**
+
+### Estimating the Regression Coefficients
+*Maximum Likelihood* is used to estimate the regression coefficients based on the sample data. The intuition behind maximum likelihood is that we seek estimates for ${B}$~0~ and ${B}$~1~ such that the predicted probability $\hat{p}$(${x}$~1~) associated with the outcome variables is as close to the observed outcome (e.g., 1 = defaulted, 0 = did not default) as possible. In other words, we are trying to get the probabilities as close to 1 as possible for those belonging to that category, and as close to 0 as possible for those belonging to the other category. See the **likelihood f(x) on p. 133**. The idea is to maximize this likelihood function using ${B}$~0~ and ${B}$~1~. *Maximum likelihood* is a function used to optimize a number of non-linear functions described in the book. **The ${B}$~1~ indicates how the probability of landing in either category changes as this value increases.** Insofar as a one-unit increase in the predictor results in a ${B}$~1~ change in the log-odds of belonging in the outcome category of interest. 
+
+The standard error for ${B}$~1~ estimate is shown in the summary table, as well as the Z-statistic which is similar to the T-statistic calculated in linear regression and is calculated with the following equation: $\hat{B}$~1~/${SE}$($\hat{B}$~1~). A large absolute value of the z-stat implies evidence against the ${H}$~0~: ${B}$~1~ = 0. If the p-value associated with the predictor variable is < .05, we reject the null--> in other words, we assume that the the predictor is related to the outcome. 
+
+### Making Predictions
+
+Once we have the coefficients we can easily compute the probability of an individual case belonging to our group of interest (typically coded as 1) by plugging our predictor into the equation on p. 134. 
+
+### Multiple Logistic Regression
+
+Consider equation 4.7 on p. 135. The maximum likelihood estimation is used to predict the parameters of the model. Be wary of conclusions based on regression with a single predictor. Be on the lookout for *confounding* effects --> consider students who are more likely to default on credit cards than non-students because they tend to have higher balances; however, when compared to a non-student with an equal balance and income, students are less-likely to default on a credit card. *See the example equations on p. 137*
+
+### Logistic Regression for > 2 Response Classes
+
+When we have more than two classes, for instance, if we have 3 classes (categories) we can find $P$($Y$ = class1|$X$) and $P$($Y$ = class2|$X$) then the $P$($Y$ = class2|$X$) = 1 - $P$($Y$ = class1|$X$) + $P$($Y$ = class2|$X$). While it's possible to use multi-class logistic regression, it's more common to use discriminant analysis. 
+
+## Linear Discriminant Analysis
+
+Logistic regression is essentially modeling the conditional distribution of a response class given some predictors. Conversely, in LDA we are modeling the distributions of the predictors separately for each response class and using Bayes' theorem to transpose these into estimates for Pr($Y = k$|$X = x$). When such distributions are assumed to be normal, the estimates for $Y$ are similar to what is produced using logistic regression.
+
+This method trumps logistic regression in several cases: 1) when classes are clearly demarcated, parameter estimates can be unstable when using logistic reg, 2) LDA outperforms logistic reg when n is small and predictor distributions approach normality in each class, and 3) LDA works best when we have more than 2 classes. 
+
+### Using Bayes' Theorem for Classification
+
+Essentially, each class (category) has a prior probability distribution drawn from the sample such that a given value of $X$ lies somewhere within the probability density function associated with a given class for that predictor. So we can use Bayes' theorem to say, what is the probability that $X$ belongs in class $Y$ given that prior probability distribution. If the density function returns a high value then it is likely that a particular instance belongs to a given category. 
+
+*Bayes' Theorem* states that:
+4.10 $$Pr(Y = k|X = x) = \frac{\pi_kf_k(x)}{\sum_{l = 1}^{K}\pi_{l}f{l}(x)}$$
+
+
+see pgs. 138-9 for a thorough explanation. In short, we are using each observation of a given predictor or set of predictors to predict the likelihood that a case belongs in a given category of $Y$. What is the probability that an observation belongs to a certain class given X. It's a conditional probability. Our prior is the proportion of obs that belong to a given class --> 1/3 = A, 1/3 = B, 1/3 = C. We are then trying to compute the function $f_{k}(X)$ with $p_{k}(x)$ representing the *posterior* probability, i.e., the probability that the obs belongs to the ${k}$th class, *given* the predictor value for that obs. 
+
+### LDA for p = 1
+
+In order to conclude that an observation belongs to $k$ class, we need to find the posterior probability $p_{k}(x)$ with the highest value and assign the observation to the class associated with that value. To do this, we make assumptions about form of  $f_{k}(x)$. We can assume that it's form is *normal* or *Gaussian* which is shown in figure 4.11 on p.139 when there's a single predictor (1-dimensional). After doing some algebra and plugging 4.11 (p.139) into the above equation (4.10).
+
+The *linear discriminant analysis* (LDA) method approximates the Bayes classifier by plugging parameter estimates for $\pi_{k}$ ($n_{k}/n$ - prior probability = proportion of training obs belonging to $k$ class), $\mu_{k}$ (average of obs from $k$ class), and $\sigma$^2^ (weighted average of sample variances for each of the $K$ classes). The LDA classifier plugs these parameter estimates into 4.17 on p. 141  and assigns x to the class where the output is the greatest. It's a linear function. 
+
+**ASSUMPTIONS**: The LDA Classifier assumes that obs in each class come from a normal distribution with a class-specific mean vector and a common variance, and plugging estimates for these parameters into the Bayes Classifier. 
+
+### LDA for p > 1
+
+We assume that each predictor $X_j$ is drawn from a multivariate Gaussian distribution with a class specific mean vector and common covariance matrix. Each predictor is assumed to follow a one-dimensional normal dist with some correlation between each pair of predictors. See equation 4.20 on p. 144 to see how space is divided into K decision boundaries. In essence, each set of observations is plugged into the equation and a particular instance is assigned to the class where it has the highest probability of belonging. 
+
+You have to be mindful of the training error rate because in some cases, simply assuming that your observation belongs to the group with the highest membership provides a guess with low error. For instance, if 97% of cases belong to group 1, then simply assigning a case to group 1 will be relatively accurate (error rate ~ 3%). Also, the training error will almost always be lower than the testing error, which is the metric we are interested in. We are specifically assigning parameters based on the training data, so our model is designed to fit that data--if it fits the data too well, we may have *overfitting* which will result in a high error rate on the test data. 
+
+A *confusion matrix* is a matrix displaying whether observations are correctly or incorrectly categorized. Thus, it shows type 1 and type 2 errors in addition to accurate classifications. The terms *sensitivity* and *specificity* are used to characterize the performance of a classifier or screening test--they are flip side of type1 and type2 errors. Sensitivity describes the accuracy in identifying the true cases of interest (e.g., people predicted to have cancer who actually have cancer). Specificity describes the accuracy of predicting null instances (e.g., people who do not have cancer who, in fact, don't have it). 
+
+Overall, because LDA uses a Bayes classifier, it results in the *lowest overall error rate* however, it may make substantial errors within classes. *See the example of credit card defaulting on p. 145-6*. So it's important to know whether you are trying to minimize sensitivity or specificity (and type 1 or type 2 errors) going into the analysis. For instance, telling someone who doesn't have cancer that they do is less serious (type 1 error: albeit frightening to the patient) than telling a patient they do not have cancer when in fact, they do (type 2 error). 
+
+It's possible to optimize the LDA classifier to improve classification accuracy depending on whether we are interested in optimizing sensitivity or specificity. By default, the LDA model (using the Bayes' classification approach), will categorize a given observation with two classes to the category where Pr($H{_A}$ = Yes|$X$ = $x$) > 0.5 --> if the probability that an observation belongs to the alternative class (e.g., credit card default) is > .5 (posterior probability), then that observation is assigned to that class. However, we can specify a lower or higher posterior prob as the cutoff criterion for assignment to a given class. 
+
+The **ROC (receiver operating characteristics) curve** is a graphic for displaying the two types of errors for all possible thresholds. The *area under the curve (AUC)* indicates the overall performance of a classifier. The ideal ROC curve will hug the upper left corner so the larger the AUC the better the classifier. *ROC curves are useful for comparing multiple classifiers because they consider all possible thresholds.* In other words, they give an overall impression of how well a given type of classifier will perform on a set of data. 
+
+**See table 4.6 on p. 148 for a breakdown of terms introduced in this section and an overall picture of the model characteristics of interest.**
+
+### Quadratic Discriminant Analysis
+
+In QDA rather than assuming a common covariance matrix spanning all classes, each class has it's own covariance matrix. A given set of predictors are plugged into equation 4.23 on p. 149 and a given observation is assigned to the class producing the highest probability value. This equation is a quadratic function, hence the name. 
+
+QDA is a more flexible model, so when deciding which model to use, one must consider the bias/variance tradeoff. Because each predictor has a unique covariance matrix, this will result in a larger number of model parameters--depending on the number of predictors. So you could easily overfit a model using QDA given a large number of predictors (which would result in a lot of parameters). 
+
+**In a nutshell, LDA does better with less observations where reducing variance is crucial (less flexibility = higher bias). Whereas QDA does well when the training set is very large so the variance is not as big of a concern (because more samples mean a closer approximation to the population data), or if a common covariance matrix across classes doesn't make sense.**
+
+### A Comparison of Classification Methods
+
+The only difference between Logistic regression and LDA, which are both linear functions producing a linear boundary line, is that in logistic regression parameter estimates are produced using maximum likelihood, whereas they are produced using the estimated mean and variance from a normal distribution in LDA. 
+
+**WHICH MODEL SHOULD I USE?**
+In a nutshell, *when observations are drawn from a Gaussian distribution and each class shares a common covariance matrix, LDA outperforms logistic regression--when these assumptions are not met, logistic regression is the better option. On the other hand, when we have reason to believe that the relationship between variables is non-linear, we can use KNN which makes no assumptions about the shape of the decision boundary. Finally, QDA is a compromise between linear models (log reg, LDA) and nonlinear models (KNN)--it can outperform KNN in the presence of limited observations because it does make assumptions about the shape of the decision boundary.*
+
+**See the different scenarios and the best fitting models on p. 153 - 154**
+
+### LAB: Logistic Regression
+
+This data set consists of percentage returns for the S&P 500 stock index over 1250 days, from the beg of 2001 to the end of 2005. For each data, the percentage returns for each of the previous 5 days are included as variables (Lag1 - Lag5).The Volume var is the number of shares traded on the previous day in billions. The Today variable describes the percentage return on the date in question, and Direction says whether the market was Up or Down on this Date (Today).
+
+```{r}
+library(ISLR)
+names(Smarket)
+dim(Smarket)
+summary(Smarket)
+```
+```{r}
+cor(Smarket[,-9])
+```
+
+There is no correlation between today's percentage returns and those for the prior 5 days. There is, however, a correlation between Year and Volume. Let's plot Volume--which is increasing with each year.
+```{r}
+attach(Smarket)
+plot(Year, Volume)
+```
+
+**Logistic Regression Model**
+Next, we'll fit a logistic regression model in order to predict Direction (will the return be up or down) using Lag1 through Lag5 and Volume. The glm() function fits *generalized linear models*, a class of models that includes logistic regression. It follows the same form as the lm model, except that the distribution must be specified--in this case, family=binomial.
+
+```{R}
+glm.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Smarket, 
+               family = binomial)
+summary(glm.fit)
+```
+
+There are no significant predictors as all of the p values > 0.05; Lag1 is the only variable that comes close to significantly predicting Direction. We use the coef() function to access just the coefficients for this model. 
+```{R}
+coef(glm.fit)
+summary(glm.fit)$coef
+```
+```{r}
+contrasts(Smarket$Direction)
+```
+Predict probability the market will go up, using the type="response" argument which produce the probability of the form $P(Y = 1|X)$ given that a value of 1 indicates that the market went up from the previous day.
+```{r}
+glm.probs = predict(glm.fit, type = "response")
+glm.probs[1:10]
+```
+
+Let's convert the numerical class labels for Direction into categorical labels, "Up" and "Down." The following commands create a vector of class predictions based on whether the predicted probability of a market increase is greater than or less than 0.5.
+```{r}
+glm.pred=rep("Down", 1250)
+glm.pred[glm.probs > .5] = "Up"
+```
+The first command creates a vector of 1,250 Down elements and the second command transforms all those whose prob > .5 to Up elements. Given these predictions, the table() function can be used to produce a confusion matrix in order to determine how many obs were correctly or incorrectly classified.
+```{r}
+table(glm.pred, Direction)
+(507 + 145)/1250 
+mean(glm.pred==Direction)
+```
+
+The diagonal elements (145, 507) tell us the number of correct classifications (507 + 145/1250), while the off diagonals tell us the number of incorrect classifications. The mean() function can tell us the number of days for which the prediction was correct. This model made a correct prediction 52% of the time--not much better than chance. 
+
+Because this data is the training data, we would expect the accuracy to be overly optimistic (error rate ~ 48%) and thus, the model is likely no better than chance on a testing data set. But to test this, we can split the data into a training and testing data set. This will give us a more realistic model, as we would be interested in using the data we have to predict market behavior on unknown, future days.
+
+We create a vector containing observations from 2001 - 2004 to predict obs from 2005 (hold out data set).
+```{R}
+train=(Year < 2005)
+Smarket.2005 = Smarket[!train,]
+dim(Smarket.2005)
+Direction.2005 = Direction[!train]
+```
+
+Here, we've created a Boolean vector (train) containing 1,250 elements [True, False]. This vector can be used to obtain a subset of the Smarket data, so Smarket[!train,] will subset the Smarket data where train = False and vice versa (Smarket[train] chooses all obs from 2001 - 2004). The ! symbol switches the elements in the vector such that True becomes False, etc. Thus, Smarket[!train,] gets all of the elements that are False in the original vector --> a submatrix contiaing obs from 2005. There are 252 such obs. 
+Now we'll fit a logistic regression model only using the training data, using the subset argument. We then obtain predicted probabilities of the stock market going up for each of the days in our test set--that is, for the days in 2005.
+```{r}
+glm.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Smarket,
+               family = binomial, subset = train)
+glm.probs <- predict(glm.fit, Smarket.2005, type = "response")
+```
+
+We have now trained and tested our data on two separate data sets (train, Smarket.2005). We finally compute the preds for 2005 and compare them to the actual movements of the market over that time.
+```{r}
+glm.pred <- rep("Down", 252)
+glm.pred[glm.probs > .5] = "Up"
+table(glm.pred, Direction.2005)
+mean(glm.pred==Direction.2005)
+mean(glm.pred!=Direction.2005)
+```
+
+Our error rate (glm.pred!=Direction.2005) is worse than chance. This is not surprising given that none of the previous days were predictive of the current day. 
+
+Now we'll fit a model using only the predictors with the lowest p-values, Lag1 and Lag2, given that fitting a model with poorly predictive variables might increase the error rate on the test data given that it increases variance without a commensurate decrease in bias.
+```{r}
+glm.fit <- glm(Direction ~ Lag1 + Lag2, data = Smarket, family = binomial, subset = train)
+glm.probs <- predict(glm.fit, Smarket.2005, type = "response")
+glm.pred <- rep("Down", 252)
+glm.pred[glm.probs > .5] = "Up"
+table(glm.pred, Direction.2005)
+mean(glm.pred==Direction.2005)
+```
+The results are more promising, with 56% accuracy; although the model predicts whether the returns will be down with only 50% accuracy (35/35+35), it predicts whether they will be up with 58% accuracy (106/106 + 76). 
+
+But suppose we want to predict the returns associated with specified values for Lag1 and Lag2. We can do this using the predict function.
+```{r}
+predict(glm.fit, newdata = data.frame(Lag1=c(1.2,1.5), Lag2=c(1.1,-0.8)), type = "response")
+```
+
+### Linear Discriminant Analysis
+
+Now we'll perform LDA on the Smarket data using the lda() function which is part of the MASS library--> the syntax is identical to lm and glm, minus the family argument. We'll start by fitting all obs before 2005.
+```{r}
+library(MASS)
+lda.fit <- lda(Direction ~ Lag1 + Lag2, data = Smarket, subset = train)
+lda.fit
+plot(lda.fit)
+```
+
+The Prior probabilities of groups are equal to $\hat\pi_1$ (0.492; days market went down) and $\hat\pi_2$ (0.508; days market went up). And the mean values for each group on each variable are used as estimates by LDA for $\mu_k$. *These particular values (Up; Lag1 = -0.0395, Lag2 = -0.0313) suggest that the market tends to be down for the previous 2 days before the market goes up, and the values (Down; Lag1 = 0.0428, 0.0339) tend to be up on days before the market goes down.* 
+
+The *coefficients of linear discriminants* output shows the linear combination of Lag1 and Lag2 that form the LDA decision rule. The plot function shows the *linear discriminants* for each pair of predictors which is computed by multiplying each obs by the coefficients (-0.642 x Lag1 - 0.514 x Lag2). 
+
+The predict function returns a list with 3 elements --> class = LDA's predictions about the movement of the market; posterior = matrix whose kth column contains the posterior probability that the corresponding obs belongs to the kth class, and x contains the linear discriminants.
+```{r}
+lda.pred <- predict(lda.fit, Smarket.2005)
+names(lda.pred)
+```
+
+The LDA and logistic regression predictions are almost identical.
+```{r}
+lda.class=lda.pred$class
+table(lda.class, Direction.2005)
+mean(lda.class==Direction.2005)
+```
+Applying 50% threshold to the posterior probs allows us to recreate the predicitons contained in the lda.pred$class
+```{r}
+sum(lda.pred$posterior[,1] >= .5)
+sum(lda.pred$posterior[,1] < .5)
+```
+The posterior prob output by the model corresponds to the prob the market will decrease.
+```{r}
+lda.pred$posterior[1:20, 1]
+lda.class[1:20]
+```
+
+Let's use a posterior threshold other than 50%. We could filter our data so that we predict a market decrease only for those values with a posterior probability of 90%. 
+```{r}
+sum(lda.pred$posterior[,1] > .9)
+```
+No days in 2005 meet that threshold! In fact, the greatest posterior probability of decrease in all of 2005 was 52.02%.
+
+### Quadratic Discriminant Analysis
+Now we'll fit a QDA to the Smarket data. We'll use the qda() function which is part of the MASS library. The syntax is identical to the lda() syntax
+```{R}
+qda.fit <- qda(Direction ~ Lag1 + Lag2, data = Smarket, subset = train)
+qda.fit
+```
+
+The output contains the group means, but not the coefficients because QDA does not use a linear function, but a quadratic function, of the predictors. The predict function works just as it does for LDA.
+```{R}
+qda.class = predict(qda.fit, Smarket.2005)$class
+table(qda.class, Direction.2005)
+mean(qda.class==Direction.2005)
+```
+
+QDA outperforms LDA and Logistic Regression, suggesting that the quadratic form may more closely model the true relationship than the linear form assumed by the prior models. 
+
+### K Nearest Neighbors
+Next, we'll do KNN using the knn() function which is part of the class library. This function makes predictions using a single command and requires four inputs:
+  1. A matrix containing the predictors associated with the training data --> train.X
+  2. A matrix containing the predictors associated with the test data --> test.X
+  3. A vector containing the class labels for the training obs --> train.Direction
+  4. A value for ${K}$, the number of nearest neighbors to be used by the classifier
+  
+We'll use cbind() [Column Bind] to bind the Lag1 and Lag2 variables together into 2 matrices, one for training and one for testing.
+
+```{R}
+library(class)
+train.X = cbind(Lag1,Lag2)[train,]
+test.X = cbind(Lag1,Lag2)[!train,]
+train.Direction = Direction[train]
+```
+
+Now we'll run the knn() function inputing the four object required and predict the market's movement for the dates in 2005. We start by setting a random seed because if several obs are tied as nearest neighbors, R will randomly break the tie. We set the seed to ensure reproducibility. 
+```{R}
+set.seed(1)
+knn.pred <- knn(train.X, test.X, train.Direction, k=1)
+table(knn.pred, Direction.2005)
+(83+43)/252
+```
+
+As expected, the results suck when K = 1 (50% correctly predicted). Let's try ${K}$=3.
+```{R}
+set.seed(1)
+knn.pred <- knn(train.X, test.X, train.Direction, k=3)
+table(knn.pred, Direction.2005)
+mean(knn.pred==Direction.2005)
+```
+
+These results are slightly better, albeit still not great. According to the book, increasing K does not improve our predictions, so QDA is the best model for these data. 
+### An Application to Caravan Insurance Data
+Now we're going to try out a new data set on KNN --> the Caravan set from the ISLR package. It includes 85 predictor variables for 5,822 individuals. The response variable is Purchase, which indicates whether or not a given individual purchases a policy. In this set, only 6% of people purchased a policy. 
+
+```{R}
+dim(Caravan)
+attach(Caravan)
+summary(Purchase)
+348/5822
+```
+KNN predicts class of a given obs by identifying obs that are nearest to it, so the scale matters. So we'll standardize the data to ensure that the result are not influenced by the scale of a given predictor variable (e.g., dollars are on a much larger scale than age and thus, the distance will be inconsistent). 
+```{R}
+standardized.X <- scale(Caravan[,-86])
+var(Caravan[,1])
+var(Caravan[,2])
+var(standardized.X[,1])
+var(standardized.X[,2])
+```
+
+Now every col of standardized.X has a SD of one and a mean of zero. Next, we'll split our data into a test set (first 1000 obs) and a train set (remaining obs). Then we fit a KNN model on the training data using ${K}$ = 1, and evaluate test performance. 
+```{R}
+test <- 1:1000
+train.X = standardized.X[-test,]
+test.X = standardized.X[test,]
+train.Y = Purchase[-test]
+test.Y = Purchase[test]
+set.seed(1)
+knn.pred <- knn(train.X, test.X, train.Y, k=1)
+mean(test.Y != knn.pred)
+mean(test.Y != "No")
+```
+
+Our error rate is just under 12% which seems good until you realize that just predicting "No" on the purchase variable would result in a 6% error rate since only 6% of customers purchased a policy. 
+
+The insurance company likely isn't interested in trying to sell to everybody, since most people won't buy and it would be expensive to try. Instead, we are interested in the people likely to buy. So the overall error rate is not of interest. Instead, we are interested in the proportion of people correctly predicted to buy insurance. It turns out that KNN with K = 1 (11.7%) does a lot better than random guessing (~6%). 
+```{R}
+table(knn.pred, test.Y)
+9/(68+9)
+```
+
+Using K = 3 we get a 19% hit rate (predicting Purchase and customer actually Purchases). And using K = 5 the rate is 26.7%. This is four times better than random guessing which suggests that the KNN model is finding structure in this complex data set. 
+```{R}
+knn.pred <- knn(train.X, test.X, train.Y, k = 3)
+table(knn.pred, test.Y)
+5/26
+knn.pred <- knn(train.X, test.X, train.Y, k = 5)
+table(knn.pred, test.Y)
+4/15
+```
+
+Finally, let's fit a logistic regression model to these data. We will not use a probability cutoff of .5 for our classifier, given that only 6% of people purchase a policy. Instead, we predict a purchase anytime the probability of purchase exceeds 25%, this results in a prediction that 33 people will purchace and this is correct for 33% of these people. This is over 5x better than random guessing. 
+```{R}
+glm.fit <- glm(Purchase ~., data = Caravan, family = binomial, subset = -test)
+glm.probs = predict(glm.fit, Caravan[test,], type = "response")
+glm.pred = rep("No",1000)
+glm.pred[glm.probs > .5] = "Yes"
+table(glm.pred, test.Y)
+
+glm.pred = rep("No", 1000)
+glm.pred[glm.probs > .25] = "Yes"
+table(glm.pred, test.Y)
+11/(22+11)
+```
