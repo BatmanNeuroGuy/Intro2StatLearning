@@ -1,0 +1,214 @@
+## RESAMPLING METHODS
+
+Resampling involves repeatedly drawing samples from the same dataset and fitting models to each of those sub-samples in order to infer more information about the model fit of interest. This chapter discusses *cross-validation (CV)* and *bootstrapping*. CV, for instance, can be used to assess model fit as well as to determine the proper level of flexibility for a given model. Bootstrapping is most commonly used to assess the accuracy of a parameter estimate or a given statistical learning method. 
+
+### Cross-Validation
+
+CV is one method of assessing obtaining the *test error rate* and is especially useful when we do not have a large data set that can be easily split into distinct subsets. In particular, we often estimate the test error rate by *holding out* a subset of the training obs during the fitting process and applying the machine learning method to those held out obs. 
+
+#### The Validation Set Approach
+
+The *validation set approach* involves dividing the available data into two parts, the *training set* and the *validation* or *hold-out set*. The model is fit to the training set and then used to predict scores for the validation set. The error rate for the validation set provides an estimate of the test error rate and MSE is typically used as the assessment criterion. 
+
+So we can take a set of models, suppose that we want to assess fit of both a standard linear regression model vs those including higher order polynomial variables. So we divide our data set into two parts (training/hold-out(validation) sets) and train each of our models on the training data and then assess each of their performances on the hold-out data. 
+
+However, depending on how the data is divided, you may get different MSE estimates and thus, it can be difficult to conclude which model best fits the data. Additionally, the validation set approach has two potential drawbacks.
+
+  1. There can be large discrepancies in MSE depending on which data is included in the     training and hold-out sets.
+  
+  2. Since only a subset of all of the data are used when fitting the model, the method
+  may *overestimate* the MSE.
+  
+#### Leave-One-Out Cross Validation
+
+LOOCV involves training the data on all but one observation which serves as the test data. In other words, if you have 30 observations, you will use 29 of those observations as the training set to and based on the model generated to fit those data, the class (value) of the last observation is predicted. This process is repeated n times and each time the MSE is procured resulting in $MSE_1, MSE_2...MSE_n$. The LOOCV estimate for the test MSE is the mean of these n MSE estimates. 
+
+LOOCV is advantageous over the validation set approach for a number of reasons. First, it limits bias as it overcomes the limitations of having a small testing set by including all but one observation in each iteration--i.e., a model is repeatedly fit to training sets containing n - 1 observations, essentially the entire data set. Secondly, there's no randomness in the results as a function of how the data are split--you will get the same results every time because models are fit to the same data sets. 
+
+LOOCV can be expensive to implement as it requires n models to be fit to the data. However, using *least squares linear or polynomial regression*, an amazing shortcut can make the strategy as efficient as a single model fit. **See further explanation and formula on p. 180.**
+
+This strategy is a general method that can be used in any sort of predictive modeling, e.g., logistic regression or LDA. 
+
+#### k-Fold Cross-Validation
+
+This method is an alternative to LOOCV in which the data is divided into random groups (folds) of approximately equal size --> each fold is then used as the test set while the remaining data is used to train the model. This is done k times (k = # of folds) for each fold. For each fold, a MSE estimate is produced, resulting in k estimates, and the average of all k estimates is taken. 
+
+LOOCV is a special case of k-Fold CV in which k = n. Using k = 5 or k = 10 is standard practice and is more computationally cheap compared to LOOCV which sets k = n. In general, variablity in models as a function of how the data are split is much lower compared to the validation set appraoch, providing another benefit of this approach. Additionally, compared with LOOCV, setting k to 5 or 10 tends to perform about as well. In general, both LOOCV and k-fold CV do a good job of finding the ideal flexibility (degree of polynomial) associated with the lowest MSE. 
+
+#### Bias-Variance Trade-off for k-Fold CV
+
+Compared with LOOCV, the k-fold CV approach gives more accurate estimates of the test error rate due to the bias-variance tradeoff. In general, the greater the sample size, the lower the bias will be, so the validation set approach overestimates the test error rate while LOOCV is an unbiased estimator of this metric. Thus, it follows that the k-fold CV approach with k = 5 or 10 is intermediate, in terms of bias, between these other appraoches. However, LOOCV has issues with variance and may result in overfitting, whereas with k = 5 or 10, this is less of a problem. This is because the data used to train a model in LOOCV are essentially identical and thus, the outputs are highly correlated with each other--with k < n (e.g., 5 or 10), data outputs are less correlated. Since the mean of many highly correlated outputs has higher variance than the mean of output trained on less correlated data, LOOCV tends to have higher variance than when k < n. 
+
+**The takeaway:** using k = 5 or k = 10 results in test error rate estimates that are neither too biased or too variable. 
+
+#### Cross-validation on Classification Problems
+
+So far we've discussed CV in the contest of regression where we are predicting a quantitative variable $Y$ and we use MSE to quantify test error. When using CV in the context of classification, we are using *the number of misclassified observations* as a metric of model accuracy, rather than the MSE. You can use CV to determine the optimal model for your analysis, including model flexibility (e.g., LDA vs. QDA vs. KNN).
+
+#### The Bootstrap
+
+The bootstrap can be used to estimate the uncertainty associated with a given estimator or stat learning method. The power of the bootstrap lies in the fact that it can be used to estimate statistical uncertainty in cases when obtaining such a metric is otherwise difficult. If we could repeatedly sample from the population and estimate our parameter, we would get an estimate very close to the true population parameter; however, repeatedly sampling from the population is expensive and cumbersome, so *instead we use the data we have to serve as a proxy for discrete samples from the population, by repeatedly drawing from our sample with replacement*. So, we draw ${B}$ boostrap datasets (${Z}^1...{Z}^B)$ from our dataset to produce ${B}$ estimates of our parameter of interest ($a^1$...$a^B$) and compute the standard error of these estimates (see formula on p. 189) which can be used to create confidence intervals. Results using the boostrap drawn from a single sample to estimate the variability associated with a given test statistic closely resembles the results obtained if you repeatedly sampled from the population. 
+
+### Lab: Cross-Validation and the Bootstrap
+
+We'll begin exploring the concepts learned in this chapter here, starting by setting a seed to ensure that our results are reproducible. We first split our sample into two halves by selecting a random subset of 196 obs out of the original 392. 
+
+```{r}
+library(ISLR)
+set.seed(1)
+train = sample(392, 196)
+```
+
+Next, we'll fit a linear regression model to our training set.
+```{r}
+lm.fit = lm(mpg~horsepower, data = Auto, subset = train)
+```
+
+We use the predict() function to estimate the response for all 392 obs, and the mean() function to calculate the MSE of the 196 obs in the validation set (-train denotes the obs not in the training set).
+```{r}
+attach(Auto)
+mean((mpg - predict(lm.fit, Auto))[-train ]^2)
+```
+The estimated MSE is 23.27. Next we use the poly() function to estimate the test error for the quadratic and cubic regression.
+```{r}
+lm.fit2 <- lm(mpg ~ poly(horsepower,2), data = Auto, subset = train)
+mean((mpg - predict(lm.fit2, Auto))[-train ]^2)
+
+lm.fit3 <- lm(mpg ~ poly(horsepower,3), data = Auto, subset = train)
+mean((mpg - predict(lm.fit3, Auto))[-train ]^2)
+```
+So our MSE estimates are approximately the same (~19) for both polynomial models. 
+
+If we chose a different training set, we would get different errors on the validation set.
+```{r}
+set.seed(2)
+train = sample(392,196)
+lm.fit <- lm(mpg ~ horsepower, subset = train)
+mean((mpg - predict(lm.fit, Auto))[-train ]^2)
+
+lm.fit2 <- lm(mpg ~ poly(horsepower,2), data = Auto, subset = train)
+mean((mpg - predict(lm.fit2, Auto))[-train ]^2)
+
+lm.fit3 <- lm(mpg ~ poly(horsepower,3), data = Auto, subset = train)
+mean((mpg - predict(lm.fit3, Auto))[-train ]^2)
+```
+
+These results suggest that a quadratic model fits the data better than a linear model; however, there is little evidence suggesting that a cubic model is a better fit. 
+
+#### Leave-One-Out Cross-Validation
+We can use the glm() or cv.glm() functions to compute the LOOCV estimate. If we leave the "family" argument out of the glm function, it automatically performs linear regression just like the lm() function (*Notice that the two models below produce identical models*).
+```{r}
+glm.fit <- glm(mpg ~ horsepower, data = Auto)
+coef(glm.fit)
+
+lm.fit <- lm(mpg ~ horsepower, data = Auto)
+coef(lm.fit)
+```
+
+In this tutorial, we use the glm() function because it is compatible with cv.glm() which is included in the boot library.
+```{r}
+library(boot)
+glm.fit <- glm(mpg ~ horsepower, data = Auto)
+cv.err <- cv.glm(Auto, glm.fit)
+cv.err$delta
+```
+The cv.glm() function outputs a number of parameters--those produced (delta) here represent the average MSE across n models for LOOCV--had we specified K folds, these numbers would have differed since the second number represents the MSE after compensating for the bias inherent in a model that is not LOOCV.
+
+Next, we are going to perform the same analysis, but include polynomial regressions from orders of i = 1...5. We'll use a for loop to do this and store the output in the cv.error vector.
+```{r}
+cv.error = rep(0,5)
+for (i in 1:5){
+  glm.fit <- glm(mpg ~ poly(horsepower, i), data = Auto)
+  cv.error[i] <- cv.glm(Auto, glm.fit)$delta[1]
+}
+cv.error
+```
+
+We can see a dramatic reduction in the estimated test MSE from the linear to quadratic models, but then no improvement for higher order polynomial models.
+
+#### k-Fold Cross-Validation
+
+We can use the same function to run k-fold CV. In this instance, we'll set k = 10, a commonly used parameter, and build models using polynomial orders up to 10. 
+```{r}
+set.seed(17)
+cv.error.10 <- rep(0,10)
+for (i in 1:10){
+  glm.fit <- glm(mpg ~ poly(horsepower, i), data = Auto)
+  cv.error.10[i] <- cv.glm(Auto, glm.fit, K=10)$delta[1]
+}
+cv.error.10
+```
+
+The computation time for K-fold CV is much shorter than for LOOCV given that it's running K models, rather than n. This could be eschewed if the LOOCV shortcut formulat (Fig. 5.2) was used, but the cv.glm() function does not implement it. Again, using cubic or higher polynomial functions does not improve our error term and indeed, k-fold CV performs as well as LOOCV (the MSE terms for the quadratic model are nearly identical). 
+
+#### The Bootstrap
+
+The beautiful thing about the boostrap is that it can be used on nearly any parameter of interest. It involves a simple two step process: 1) construct a function to run the analysis of interest in order to obtain the parameter we are interested in, and 2) use the boot() function from the boot library to repeatedly sample our data with replacement to perform the bootstrap.
+
+Here we will use the Portfolio data set in the ISLR package. First, we construct a function, alpha.fn(), taking both the (X,Y) data in addition to a vector indicating observations used to estimate ${a}$ as input. The function outputs an estimate for ${a}$ based on the selected obs. 
+```{r}
+alpha.fn <- function(data, index){
+  X = data$X[index]
+  Y = data$Y[index]
+  return((var(Y) - cov(X,Y))/(var(X) + var(Y) - 2*cov(X,Y)))
+}
+```
+
+This function returns, or outputs, an estimate for ${a}$ based on applying 5.7 on p.187, which you will remember is the ideal amount to invest in A with the ideal amount to invest in B being (1 - ${a}$), such that we get the lowest risk on our investment.
+
+The following tells R to estimate ${a}$ using every observation
+```{r}
+alpha.fn(Portfolio, 1:100)
+```
+The next command uses the sample() function to randomly select 100 observations from the range 1 to 100, with replacement, constructing a new boostrap data set and recomputing ${a}$.
+```{r}
+set.seed(1)
+alpha.fn(Portfolio, sample(100,100,replace = T))
+```
+By repeating this process many times we are performing a bootstrap analysis and taking note of ${a}$ for each sample drawn and then computing the SD across all ${a}$ values. Next, we'll produce ${R}$ = 1,000 bootstrap estimates for ${a}$. 
+```{r}
+boot(Portfolio, alpha.fn, R=1000)
+```
+
+The final output shows that the ${a}$ based on the original data = 0.5758, with the boostrap SE(${a}$) = 0.0937.
+
+##### Estimating the accuracy of a linear regression model
+
+The bootstrap can be used to assess the variability of coefficients and predictions of various statistical learning methods. Here we use it to estimate the variability of ${B}_0$ and ${B}_1$, the intercept and slop terms for our model on the the Auto dataset. We can compare the boostrap estimates with those obtained using the formulas for standard error of beta parameters in section 3.1.2.
+
+First, we create a simple function, boot.fn() which takes as arguments the Auto ds as well as a set of indices for the obs, and returns the intercept and slope estimates for the model. Then, we apply this function to the full data set of 392 obs to compute  ${B}_0$ and  ${B}_1$ estimates using the typical linear regression estimate formulas from Chpt 3. NOTE: because the function is only 1 line long, we don't need to enclose it in curly brackets.
+```{r}
+boot.fn <- function(data,index)
+  return(coef(lm(mpg ~ horsepower, data = data, subset = index)))
+boot.fn(Auto, 1:392)
+```
+We can use the boot.fn() function to create bootstrap estimates for  ${B}_0$ and  ${B}_1$ by randomly sampling from among the obs w/ replacement. We'll use two examples:
+```{r}
+set.seed(1)
+boot.fn(Auto, sample(392,392, replace = T))
+boot.fn(Auto, sample(392,392, replace = T))
+```
+Next, we'll use the boot() function to compute the SEs of 1,000 bootstrap estimates for ${B}_0$ and  ${B}_1$.
+```{r}
+boot(Auto, boot.fn, 1000)
+```
+
+This indicates that the SE estimate for ${B}_0$ is 0.84 and the SE estimate for  ${B}_1$ is 0.0073.
+
+```{r}
+summary(lm(mpg ~ horsepower, data = Auto))$coef
+```
+
+The standard errors for our Beta parameters computed using the standard formula from chapter 3 differ from our bootstrap parameters because certain assumptions are made regarding the population variance which is unknown and is computed using RSS--this parameter assumes linearity, which is violated in this model. The standard formula also assumes that ${x}_i$ is fixed and the the variation is in the errors, which is unrealistic. The bootstrap makes neither of these assumptions and thus, provides a more accurate estimate of the SEs for our beta terms. 
+
+Finally, we'll compare these two methods on the quadratic model, which results in more coherence between the outputs of the two methods since no assumptions are violated.
+```{r}
+boot.fn <- function(data,index)
+  return(coef(lm(mpg ~ horsepower +I(horsepower^2), data = data, subset = index)))
+set.seed(1)
+boot(Auto, boot.fn, 1000)
+
+summary(lm(mpg ~ horsepower + I(horsepower^2), data = Auto))$coef
+```
+
+
